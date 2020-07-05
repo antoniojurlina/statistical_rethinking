@@ -1,0 +1,215 @@
+---
+title: "2 - Small Worlds and Large Worlds"
+author: "Antonio Jurlina"
+date: "07/01/2020"
+output: pdf_document
+fontsize: 10pt 
+geometry: margin=1in
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggthemes)
+library(here)
+```
+
+**2E1.** Which of the expressions below correspond to the statement: _the probability of rain on Monday_?
+
+  + (1) $P(rain)$
+  
+  + (2) $P(rain|Monday)$
+  
+  + (3) $P(Monday|rain)$
+  
+  + (4) $P(rain,Monday)/P(Monday)$
+  
+
+The probability of rain on Monday is $P(rain|Monday)$. 
+
+The joint probability (probability that it is rain and it is a Monday) is $P(rain, Monday) = P(rain|Monday)P(Monday)$.
+
+From there, we conclude that
+
+$$\frac{P(rain,Monday)}{P(Monday)} = P(rain|Monday)$$
+Therefore, correct answers are (2) and (4).
+
+**2E2.** Which of the following statements corresponds to the expression: $Pr(Monday|rain)$?
+
+  + (1) The probability of rain on Monday.
+
+  + (2) The probability of rain, given that it is Monday.
+
+  + (3) The probability that it is Monday, given that it is raining. 
+
+  + (4) The probability that it is Monday and that it is raining.
+  
+
+$Pr(Monday|rain)$ can be understood as _the probability that it is Monday, given that it is raining_. Therefore, the answer is (3).
+
+**2E3.** Which of the expressions below correspond to the statement: _the probability that it is Monday, given that it is raining_?
+
+  + (1) $P(Monday|rain)$
+
+  + (2) $P(rain|Monday)$
+
+  + (3) $P(rain|Monday)P(Monday)$
+
+  + (4) $P(rain|Monday)P(Monday)/P(rain)$
+
+  + (5) $P(Monday|rain)P(rain)/P(Monday)$
+  
+According to Bayes' Theorem
+
+$$P(Monday|rain) = \frac{P(rain|Monday)P(Monday)}{P(rain)}$$
+therefore, the correct answers are (1) and (4).
+
+**2E4.** The Bayesian statistician Bruno de Finetti (1906–1985) began his book on probability theory with the declaration: “PROBABILITY DOES NOT EXIST.” The capitals appeared in the original, so I imagine de Finetti wanted us to shout this statement. What he meant is that probability is a device for describing uncertainty from the perspective of an observer with limited knowledge; it has no objective reality. Discuss the globe tossing example from the chapter, in light of this statement. What does it mean to say “the probability of water is 0.7”?
+  
+"The probability of water is 0.7" means the tosser is 70% certain his finger will land on water when catching the globe.
+
+**2M1.** Recall the globe tossing model from the chapter. Compute and plot the grid approximate posterior distribution for each of the following sets of observations. In each case, assume a uniform prior for p.
+
+  + (1) W,W,W
+
+  + (2) W,W,W,L
+
+  + (3) L,W,W,L,W,W,W
+  
+```{r 2M1, echo = TRUE}
+n_of_points <- 20
+
+data <- tibble(p_grid = seq(0, 1, length.out = n_of_points),
+               prior = 0.5,
+               likelihood = dbinom(3, 3, 
+                                   prob = p_grid),
+               part = "(1) W W W") %>%
+  bind_rows(tibble(p_grid = seq(0, 1, length.out = n_of_points),
+                   prior = 0.5,
+                   likelihood = dbinom(3, 4, 
+                                       prob = p_grid),
+                   part = "(2) W W W L")) %>%
+  bind_rows(tibble(p_grid = seq(0, 1, length.out = n_of_points),
+                   prior = 0.5,
+                   likelihood = dbinom(5, 7, 
+                                       prob = p_grid),
+                   part = "(3) L W W L W W W"))
+
+data <- data %>%
+  rename(`probability of water` = p_grid) %>%
+  mutate(unstd_posterior = likelihood * prior) %>%
+  group_by(part) %>%
+  mutate(posterior = unstd_posterior / sum(unstd_posterior)) %>%
+  ungroup()
+
+ggplot(data, aes(x = `probability of water`, y = posterior, color = part)) +
+  geom_point(show.legend = F) +
+  geom_line(show.legend = F) +
+  facet_wrap(. ~ part) +
+  theme_par()
+```
+
+
+**2M2.** Now assume a prior for p that is equal to zero when $p < 0.5$ and is a positive constant when $p \geq 0.5$. Again compute and plot the grid approximate posterior distribution for each of the sets of observations in the problem just above.
+
+_Note: I rewrote code for this problem from scratch so that it stands on its own, but I could have just reused the data from the previous one with a slight modification._
+
+```{r 2M2, echo = TRUE}
+n_of_points <- 20
+
+data <- tibble(p_grid = seq(0, 1, length.out = n_of_points),
+               prior = if_else(p_grid < 0.5, 0, 1),
+               likelihood = dbinom(3, 3, 
+                                   prob = p_grid),
+               part = "(1) W W W") %>%
+  bind_rows(tibble(p_grid = seq(0, 1, length.out = n_of_points),
+                   prior = if_else(p_grid < 0.5, 0, 1),
+                   likelihood = dbinom(3, 4, 
+                                       prob = p_grid),
+                   part = "(2) W W W L")) %>%
+  bind_rows(tibble(p_grid = seq(0, 1, length.out = n_of_points),
+                   prior = if_else(p_grid < 0.5, 0, 1),
+                   likelihood = dbinom(5, 7, 
+                                       prob = p_grid),
+                   part = "(3) L W W L W W W"))
+
+data <- data %>%
+  rename(`probability of water` = p_grid) %>%
+  mutate(unstd_posterior = likelihood * prior) %>%
+  group_by(part) %>%
+  mutate(posterior = unstd_posterior / sum(unstd_posterior)) %>%
+  ungroup()
+
+ggplot(data, aes(x = `probability of water`, y = posterior, color = part)) +
+  geom_point(show.legend = F) +
+  geom_line(show.legend = F) +
+  facet_wrap(. ~ part) +
+  theme_par()
+```
+
+**2M3.** Suppose there are two globes, one for Earth and one for Mars. The Earth globe is 70% covered in water. The Mars globe is 100% land. Further suppose that one of these globes—you don’t know which—was tossed in the air and produced a “land” observation. Assume that each globe was equally likely to be tossed. Show that the posterior probability that the globe was the Earth, conditional on seeing “land” ($Pr(Earth|land)$), is 0.23.
+
+From the problem statement we know that $P(land|Earth) = 0.3$, $P(land|Mars) = 1$, and $P(E) = P(M) = 0.5$.
+
+$$P(land) = P(land|Earth)P(Earth) + P(land|Mars)P(Mars)$$
+$$P(land) = 0.3*0.5+1*0.5$$
+$$P(land) = 0.65$$
+
+From Bayes' theorem we know that
+
+$$P(Earth|land) = \frac{P(land|Earth)P(Earth)}{P(land)}$$
+$$P(Earth|land) = \frac{0.3*0.5}{0.65}$$
+$$P(Earth|land) = 0.23$$
+**2M4.** Suppose you have a deck with only three cards. Each card has two sides, and each side is either black or white. One card has two black sides. The second card has one black and one white side. The third card has two white sides. Now suppose all three cards are placed in a bag and shuffled. Someone reaches into the bag and pulls out a card and places it flat on a table. A black side is shown facing up, but you don’t know the color of the side facing down. Show that the probability that the other side is also black is 2/3. Use the counting method (Section 2 of the chapter) to approach this problem. This means counting up the ways that each card could produce the observed data (a black side facing up on the table).
+
+``` {r 2M4, echo = TRUE}
+cards <- tibble(card = c("BB", "BW", "WW"),
+                ways = c(2, 1, 0),
+                prob = round(ways / sum(ways), 3))
+
+knitr::kable(cards)
+```
+
+
+**2M5.** Now suppose there are four cards: B/B, B/W, W/W, and another B/B. Again suppose a card is drawn from the bag and a black side appears face up. Again calculate the probability that the other side is black.
+
+``` {r 2M5, echo = TRUE}
+cards <- tibble(card = c("BB", "BW", "WW", "BB"),
+                ways = c(2, 1, 0, 2),
+                prob = round(ways / sum(ways), 3)) %>%
+  group_by(card) %>%
+  summarize(ways = sum(ways),
+            prob = sum(prob))
+
+knitr::kable(cards)
+```
+
+**2M6.** Imagine that black ink is heavy,and so cards with black sides are heavier than cards with white sides. As a result, it’s less likely that a card with black sides is pulled from the bag. So again assume there are three cards: B/B, B/W, and W/W. After experimenting a number of times, you conclude that for every way to pull the B/B card from the bag, there are 2 ways to pull the B/W card and 3 ways to pull the W/W card. Again suppose that a card is pulled and a black side appears face up. Show that the probability the other side is black is now 0.5. Use the counting method, as before.
+
+``` {r 2M6, echo = TRUE}
+cards <- tibble(card = c("BB", "BW", "WW"),
+                ways = c(2, 1, 0),
+                weight = c(1, 2, 3),
+                updated_ways = ways * weight,
+                prob = round(updated_ways / sum(updated_ways), 3))
+
+knitr::kable(cards)
+```
+
+**2M7.** Assume again the original card problem, with a single card showing a black side face up. Before looking at the other side, we draw another card from the bag and lay it face up on the table. The face that is shown on the new card is white. Show that the probability that the first card, the one showing a black side, has black on its other side is now 0.75. Use the counting method, if you can. _Hint: Treat this like the sequence of globe tosses, counting all the ways to see each observation, for each possible first card._
+
+``` {r 2M7, echo = TRUE}
+cards <- tibble(card = c("BB", "BW", "WW"),
+                ways_black = c(2, 1, 0),
+                ways_white = c(3, 2, 0),
+                updated_ways = ways_black * ways_white,
+                prob = round(updated_ways / sum(updated_ways), 3))
+
+knitr::kable(cards)
+```
+
+
+\vspace*{\fill}
+
+More at [github.com/antoniojurlina/statistical_rethinking](https://github.com/antoniojurlina/statistical_rethinking)  
+
