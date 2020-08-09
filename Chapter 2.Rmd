@@ -15,6 +15,8 @@ library(here)
 library(knitr)
 ```
 
+## **Easy**
+
 **2E1.** Which of the expressions below correspond to the statement: _the probability of rain on Monday_?
 
   + (1) $P(rain)$
@@ -68,6 +70,8 @@ therefore, the correct answers are (1) and (4).
 **2E4.** The Bayesian statistician Bruno de Finetti (1906–1985) began his book on probability theory with the declaration: “PROBABILITY DOES NOT EXIST.” The capitals appeared in the original, so I imagine de Finetti wanted us to shout this statement. What he meant is that probability is a device for describing uncertainty from the perspective of an observer with limited knowledge; it has no objective reality. Discuss the globe tossing example from the chapter, in light of this statement. What does it mean to say “the probability of water is 0.7”?
   
 "The probability of water is 0.7" means the tosser is 70% certain his finger will land on water when catching the globe.
+
+## **Medium**
 
 **2M1.** Recall the globe tossing model from the chapter. Compute and plot the grid approximate posterior distribution for each of the following sets of observations. In each case, assume a uniform prior for p.
 
@@ -209,6 +213,8 @@ cards <- tibble(card = c("BB", "BW", "WW"),
 kable(cards)
 ```
 
+## **Hard**
+
 **2H1.** Suppose there are two species of panda bear. Both are equally common in the wild and live in the same places. They look exactly alike and eat the same food, and there is yet no genetic assay capable of telling them apart. They differ however in their family sizes. Species A gives birth to twins $10$% of the time, otherwise birthing a single infant. Species B births twins $20$% of the time, otherwise birthing singleton infants. Assume these numbers are known with certainty, from many years of field research.
 Now suppose you are managing a captive panda breeding program. You have a new female panda of unknown species, and she has just given birth to twins. What is the probability that her next birth will also be twins?
 
@@ -272,13 +278,13 @@ $$P(positive) = 0.704$$
 $$P(A|positive) = \frac{P(positive|A)P(A)}{P(positive)}$$
 $$P(A|positive) = \frac{0.8*0.36}{0.704}$$
 $$P(A|positive) = 0.409$$
-
-
-
-
-
-
 \vspace*{\fill}
 
 More at [github.com/antoniojurlina/statistical_rethinking](https://github.com/antoniojurlina/statistical_rethinking)  
+
+\newpage
+
+``` {r session, echo = TRUE}
+sessionInfo()
+```
 
